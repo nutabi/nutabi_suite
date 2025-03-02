@@ -1,0 +1,7 @@
+-- Add up migration script here
+CREATE TABLE IF NOT EXISTS Nutabi.Location (
+    RecordId INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Longitude DOUBLE NOT NULL,
+    Latitude DOUBLE NOT NULL
+);
