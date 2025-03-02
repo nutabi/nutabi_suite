@@ -1,3 +1,6 @@
+#![forbid(unsafe_code)]
+#![warn(clippy::correctness, clippy::pedantic, clippy::style, clippy::perf)]
+
 use anyhow::Context;
 use axum::Router;
 use sqlx::mysql::MySqlPoolOptions;
