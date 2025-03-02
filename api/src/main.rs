@@ -3,7 +3,7 @@ use axum::Router;
 use sqlx::mysql::MySqlPoolOptions;
 
 use api::{
-    config::{AppState, Config},
+    commons::{AppState, Config},
     routes::make_router,
 };
 use tokio::net::TcpListener;

@@ -1,7 +1,7 @@
 use axum::{extract::State, response::IntoResponse, routing, Json, Router};
 use serde::Deserialize;
 
-use crate::config::AppState;
+use crate::commons::AppState;
 
 pub fn make_router() -> Router<AppState> {
     Router::new()

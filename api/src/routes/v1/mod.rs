@@ -2,7 +2,7 @@ mod location;
 
 use axum::Router;
 
-use crate::config::AppState;
+use crate::commons::AppState;
 
 pub fn make_router() -> Router<AppState> {
     Router::new()

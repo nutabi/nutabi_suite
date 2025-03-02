@@ -35,8 +35,3 @@ impl Config {
         Ok(Self { database_url, port })
     }
 }
-
-#[derive(Clone)]
-pub struct AppState {
-    pub db_pool: sqlx::MySqlPool,
-}
