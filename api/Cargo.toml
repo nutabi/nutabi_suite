@@ -3,6 +3,13 @@ name = "api"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "api"
+path = "src/main.rs"
+
 [dependencies]
 anyhow = "1.0"
 axum = { version = "0.8", features = ["macros"] }

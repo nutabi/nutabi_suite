@@ -1,12 +1,11 @@
-mod config;
-mod routes;
-
 use anyhow::Context;
 use axum::Router;
 use sqlx::mysql::MySqlPoolOptions;
 
-use config::{AppState, Config};
-use routes::make_router;
+use api::{
+    config::{AppState, Config},
+    routes::make_router,
+};
 use tokio::net::TcpListener;
 
 #[tokio::main]
