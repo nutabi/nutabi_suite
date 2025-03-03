@@ -10,6 +10,7 @@ use base64::{Engine, prelude::BASE64_URL_SAFE};
 use rand::{RngCore, rng};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use tracing::{debug, error, trace};
 
 pub fn make_router() -> Router<AppState> {
     Router::new()
@@ -17,8 +18,10 @@ pub fn make_router() -> Router<AppState> {
         .route("/", post(post_data_source))
 }
 
-#[axum::debug_handler]
 async fn get_data_source(State(_): State<AppState>, data_source: DataSource) -> impl IntoResponse {
+    debug!("Request received by get_data_source");
+    trace!("Source: {}", data_source.name);
+
     let response = GetDataSourceResponse {
         name: data_source.name,
         description: data_source.description.unwrap_or_default(),
@@ -26,12 +29,14 @@ async fn get_data_source(State(_): State<AppState>, data_source: DataSource) -> 
     Json(response)
 }
 
-#[axum::debug_handler]
 async fn post_data_source(
     State(state): State<AppState>,
     _: RequireMan,
     Json(payload): Json<PostDataSourcePayload>,
 ) -> impl IntoResponse {
+    debug!("Request received by post_data_source");
+    trace!("Source: {}", payload.name);
+
     // Generate a new access key
     let mut access_key: [u8; 32] = [0; 32];
     rng().fill_bytes(&mut access_key);
@@ -55,11 +60,13 @@ async fn post_data_source(
     .await
     {
         Ok(_) => {
-            tracing::info!("Data source inserted successfully.");
+            debug!("Data source inserted successfully.");
+            trace!("Created: {}", payload.name);
             BASE64_URL_SAFE.encode(access_key).into_response()
         }
         Err(e) => {
-            tracing::error!("Failed to insert data source: {:?}", e);
+            error!("Failed to insert data source");
+            debug!("Error: {:?}", e);
             "Unable to create data source.".into_response()
         }
     }
@@ -86,16 +93,30 @@ impl FromRequestParts<AppState> for DataSource {
         parts: &mut Parts,
         state: &AppState,
     ) -> Result<Self, Self::Rejection> {
+        debug!("Data source authentication request received");
         // Extract access token from the request header
         let token = parts
             .headers
             .get(AUTHORIZATION)
-            .and_then(|value| value.to_str().ok())
+            .and_then(|value| {
+                debug!("AUTHORIZATION header found");
+                trace!("Value: {:?}", value);
+                value.to_str().ok()
+            })
             .and_then(|value| value.strip_prefix("Bearer "))
-            .ok_or(StatusCode::UNAUTHORIZED)?;
+            .ok_or_else(|| {
+                debug!("Invalid AUTHORIZATION header");
+                StatusCode::UNAUTHORIZED
+            })?;
 
-        tracing::info!("Source authentication request received");
-        tracing::debug!("Token: {}", token);
+        debug!("Correctly formatted BEARER token found");
+        trace!("Token: {}", token);
+
+        // Decode the token
+        let token = BASE64_URL_SAFE.decode(token.as_bytes()).map_err(|_| {
+            debug!("Invalid base64 encoding");
+            StatusCode::UNAUTHORIZED
+        })?;
 
         // Calculate hash
         let mut hash = Sha256::new();
@@ -121,10 +142,13 @@ impl FromRequestParts<AppState> for DataSource {
         .fetch_one(&state.db_pool)
         .await
         .map_err(|_| {
-            tracing::warn!("Token not found");
+            debug!("Access key hash not found in database");
+            trace!("Hash: {}", hash);
             StatusCode::UNAUTHORIZED
         })?;
 
+        debug!("Data source found");
+        trace!("Source: {}", data_source.name);
         Ok(data_source)
     }
 }

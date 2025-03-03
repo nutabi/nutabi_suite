@@ -1,5 +1,6 @@
 use anyhow::Result;
 use std::env;
+use tracing::{debug, error, trace, warn};
 
 pub struct Config {
     pub database_url: String,
@@ -13,34 +14,35 @@ impl Config {
         // Retrieve DATABASE_URL
         let database_url = match env::var("DATABASE_URL") {
             Ok(database_url) => {
-                tracing::info!("DATABASE_URL found.");
-                tracing::debug!("DATABASE_URL set to {}.", database_url);
+                debug!("DATABASE_URL found");
+                trace!("Value: {}", database_url);
                 database_url
             }
             Err(e) => {
-                tracing::error!("DATABASE_URL not set. Exiting.");
+                error!("DATABASE_URL not found, exiting");
                 return Err(e.into()); // Error here.
             }
         };
 
         // Retrieve PORT
         let port = if let Ok(port) = env::var("PORT") {
-            tracing::info!("PORT set to {}.", port);
+            debug!("PORT found");
+            trace!("Value: {}", port);
             port
         } else {
-            tracing::info!("PORT not set. Using default port 3000.");
+            warn!("PORT not found, using default value 3000");
             "3000".to_string()
         };
 
         // Retrieve MANAGEMENT_SECRET
         let management_secret = match env::var("MANAGEMENT_SECRET") {
             Ok(management_secret) => {
-                tracing::info!("MANAGEMENT_SECRET found.");
-                tracing::debug!("MANAGEMENT_SECRET set to {}.", management_secret);
+                debug!("MANAGEMENT_SECRET found");
+                trace!("Value: {}", management_secret);
                 management_secret
             }
             Err(e) => {
-                tracing::error!("MANAGEMENT_SECRET not set. Exiting.");
+                error!("MANAGEMENT_SECRET not set, exiting");
                 return Err(e.into()); // Error here.
             }
         };

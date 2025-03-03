@@ -4,6 +4,7 @@
 use anyhow::Context;
 use sqlx::mysql::MySqlPoolOptions;
 use tokio::net::TcpListener;
+use tracing::debug;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -19,7 +20,7 @@ async fn main() -> anyhow::Result<()> {
         .connect(&config.database_url)
         .await
         .context("Unable to establish database connection")?;
-    tracing::info!("Database connection established");
+    debug!("Database connection established");
 
     // Create application
     let app = api::make_app().with_state(api::AppState {
@@ -35,7 +36,7 @@ async fn main() -> anyhow::Result<()> {
 
     // Start server
     axum::serve(listener, app).await.context("Server error")?;
-    tracing::info!("Listening on {}", addr);
+    debug!("Listening on {}", addr);
 
     Ok(())
 }
