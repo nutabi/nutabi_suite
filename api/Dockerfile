@@ -6,7 +6,8 @@ RUN mkdir src && echo "fn main() {}" > src/main.rs
 RUN cargo build --release
 RUN rm -f target/release/deps/api* target/release/api* src/main.rs
 
-COPY src ./src
+COPY src src
+COPY .sqlx .sqlx
 RUN cargo build --release
 
 FROM debian:bookworm-slim

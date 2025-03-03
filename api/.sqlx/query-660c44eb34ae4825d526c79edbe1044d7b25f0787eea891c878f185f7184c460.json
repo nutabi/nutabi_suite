@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "\n        INSERT INTO DataSource (Name, Description, AccessKey)\n        VALUES (?, ?, ?);\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "660c44eb34ae4825d526c79edbe1044d7b25f0787eea891c878f185f7184c460"
+}
