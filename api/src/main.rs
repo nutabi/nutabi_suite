@@ -2,13 +2,7 @@
 #![warn(clippy::correctness, clippy::pedantic, clippy::style, clippy::perf)]
 
 use anyhow::Context;
-use axum::Router;
 use sqlx::mysql::MySqlPoolOptions;
-
-use api::{
-    commons::{AppState, Config},
-    routes::make_router,
-};
 use tokio::net::TcpListener;
 
 #[tokio::main]
@@ -17,7 +11,7 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
     // Retrieve configuration
-    let config = Config::new()?;
+    let config = api::Config::new()?;
 
     // Initialise database connection
     let db_pool = MySqlPoolOptions::new()
@@ -28,9 +22,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("Database connection established");
 
     // Create application
-    let app = Router::new()
-        .nest("/api", make_router())
-        .with_state(AppState { db_pool });
+    let app = api::make_app().with_state(api::AppState { db_pool });
 
     // Create port listener
     let addr = format!("0.0.0.0:{}", config.port);
