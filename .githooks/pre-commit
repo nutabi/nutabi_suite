@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# Define color codes
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+# Find Rust project directories (with Cargo.toml)
+RUST_DIRS=$(find . -type f -name "Cargo.toml" -exec dirname {} \; | sed 's|^\./||')
+
+check() {
+    echo "[$1] 'cargo check' running"
+    if cargo check --quiet --manifest-path="$1/Cargo.toml"; then
+        echo -e "${GREEN}[$1] 'cargo check' succeeded${NC}"
+    else
+        echo -e "${RED}[$1] 'cargo check' failed. Aborting commit.${NC}"
+        exit 1
+    fi
+}
+
+fmt() {
+    echo "[$1] 'cargo fmt' running"
+    if cargo fmt --quiet --manifest-path="$1/Cargo.toml" -- --check; then
+        echo -e "${GREEN}[$1] 'cargo fmt' succeeded${NC}"
+    else
+        echo -e "${RED}[$1] 'cargo fmt' failed. Aborting commit.${NC}"
+        exit 1
+    fi
+}
+
+clippy() {
+    echo "[$1] 'cargo clippy' running"
+    if cargo clippy --quiet --manifest-path="$1/Cargo.toml" -- -D warnings; then
+        echo -e "${GREEN}[$1] 'cargo clippy' succeeded${NC}"
+    else
+        echo -e "${RED}[$1] 'cargo clippy' failed. Aborting commit.${NC}"
+        exit 1
+    fi
+}
+
+# Check for changes before running the loop
+CHANGES_FOUND=0
+
+for dir in $RUST_DIRS; do
+    # Check if there are changes in this directory
+    if git status --porcelain=v1 "$dir" | grep -qE '^\s?[MADRC]'; then
+        echo -e "${YELLOW}[$dir] Detected changes. Running checks...${NC}"
+        check "$dir"
+        fmt "$dir"
+        clippy "$dir"
+        CHANGES_FOUND=1
+    else
+        echo -e "${YELLOW}[$dir] No changes detected. Skipping.${NC}"
+    fi
+done
+
+# Exit successfully if at least one directory was checked
+if [[ $CHANGES_FOUND -eq 1 ]]; then
+    echo -e "${GREEN}All checks succeeded. Proceeding with commit.${NC}"
+    exit 0
+else
+    echo -e "${YELLOW}No changes detected in any Rust project. Skipping checks.${NC}"
+    exit 0
+fi
