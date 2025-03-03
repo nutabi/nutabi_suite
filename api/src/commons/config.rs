@@ -1,8 +1,7 @@
-use std::env;
-
 use anyhow::{Context, Result, anyhow};
 use base64::prelude::{BASE64_URL_SAFE_NO_PAD, Engine};
 use hex::FromHex;
+use std::env;
 
 pub struct Config {
     pub database_url: String,
