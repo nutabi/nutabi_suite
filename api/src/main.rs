@@ -39,9 +39,7 @@ async fn main() -> anyhow::Result<()> {
         .context("Cannot bind to port")?;
 
     // Start server
-    axum::serve(listener, app)
-        .await
-        .context("Server error")?;
+    axum::serve(listener, app).await.context("Server error")?;
     tracing::info!("Listening on {}", addr);
 
     Ok(())

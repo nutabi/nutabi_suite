@@ -14,7 +14,7 @@ impl Config {
                 tracing::info!("DATABASE_URL found.");
                 tracing::debug!("DATABASE_URL set to {}.", database_url);
                 database_url
-            },
+            }
             Err(e) => {
                 tracing::error!("DATABASE_URL not set. Exiting.");
                 return Err(e.into()); // Error here.

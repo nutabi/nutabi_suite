@@ -1,11 +1,10 @@
-use axum::{extract::State, response::IntoResponse, routing, Json, Router};
+use axum::{Json, Router, extract::State, response::IntoResponse, routing};
 use serde::Deserialize;
 
 use crate::commons::AppState;
 
 pub fn make_router() -> Router<AppState> {
-    Router::new()
-        .route("/", routing::post(post_location))
+    Router::new().route("/", routing::post(post_location))
 }
 
 #[derive(Deserialize)]
@@ -23,14 +22,15 @@ async fn post_location(
         .bind(payload.latitude)
         .bind(payload.longitude)
         .execute(&state.db_pool)
-        .await {
-            Ok(_) => {
-                tracing::info!("Location inserted successfully.");
-                "Location inserted successfully."
-            },
-            Err(e) => {
-                tracing::error!("Failed to insert location: {:?}", e);
-                "Failed to insert location."
-            }
+        .await
+    {
+        Ok(_) => {
+            tracing::info!("Location inserted successfully.");
+            "Location inserted successfully."
         }
+        Err(e) => {
+            tracing::error!("Failed to insert location: {:?}", e);
+            "Failed to insert location."
+        }
+    }
 }
