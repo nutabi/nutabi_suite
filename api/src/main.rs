@@ -22,7 +22,10 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("Database connection established");
 
     // Create application
-    let app = api::make_app().with_state(api::AppState { db_pool });
+    let app = api::make_app().with_state(api::AppState {
+        db_pool,
+        management_secret: config.management_secret,
+    });
 
     // Create port listener
     let addr = format!("0.0.0.0:{}", config.port);

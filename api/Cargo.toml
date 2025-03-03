@@ -8,10 +8,9 @@ anyhow = "1.0"
 axum = { version = "0.8", features = ["macros"] }
 base64 = "0.22.1"
 chrono = { version = "0.4", features = ["serde"] }
-hex = "0.4.3"
-jwt = "0.16.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+sha2 = "0.10.8"
 sqlx = { version = "0.8", features = ["mysql", "runtime-tokio-native-tls", "chrono"] }
 tokio = { version = "1.43", features = ["full", "tracing"] }
 tracing = "0.1"
